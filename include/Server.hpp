@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <fcntl.h> 
 #include "common.hpp"
 
 
@@ -17,11 +18,13 @@ class Server {
         int _sockfd;
         int _epfd;
         struct sockaddr_in _sin;
-        struct epoll_event _ev, rev[1028];
+        struct epoll_event _rev[1028];
+
+        void handle_event(struct epoll_event ev);
     public:
         Server(const string& port, const string& password);
         
         void run();
-        
         void sclose();
+
 };

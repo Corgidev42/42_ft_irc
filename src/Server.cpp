@@ -10,6 +10,8 @@ Server::Server(const string& port, const string& password) : _port(stoi(port)), 
     _sin.sin_port = htons(_port);
     _sin.sin_addr.s_addr = htonl(INADDR_ANY);
 
+    fcntl(_sockfd, F_SETFL, O_NONBLOCK);
+
     // Bind to port
     if (bind(_sockfd, (struct sockaddr *)&_sin, sizeof(struct sockaddr)) == -1)
         cerr << "Error: Socket bind" << endl;
@@ -23,35 +25,50 @@ Server::Server(const string& port, const string& password) : _port(stoi(port)), 
     if (_epfd == -1)
         cerr << "Error: Epoll create" << endl;
     
-    _ev.events = EPOLLIN;
-    _ev.data.fd = STDIN_FILENO;
+    struct epoll_event ev;
+    ev.events = EPOLLIN;
+    ev.data.fd = STDIN_FILENO;
 
-    if (epoll_ctl(_epfd, EPOLL_CTL_ADD, STDIN_FILENO, &_ev) == -1)
+    if (epoll_ctl(_epfd, EPOLL_CTL_ADD, STDIN_FILENO, &ev) == -1)
         cerr << "Error: Epoll ctl for quit" << endl;
 
-    _ev.data.fd = _sockfd;
-    if (epoll_ctl(_epfd, EPOLL_CTL_ADD, _sockfd, &_ev))
+    ev.data.fd = _sockfd;
+    if (epoll_ctl(_epfd, EPOLL_CTL_ADD, _sockfd, &ev))
         cerr << "Error: Epoll ctl for listen server" << endl;
 }
 
 void Server::run() {
-    // while(true) {
-        // if (epoll_wait() > 0) {
-            // Authentication
-            // Set a Nickname
-            // Set an Username
-            // Join a Channel
-
-            // Send/Received a message (client<->client and client<->channel)
-
-            // Kick command
-            // Invite command
-            // Topic command
-            // Mode command (i, t, k, o, l)
-        // }
-    // }
+    while(true) {
+        int num_events = epoll_wait(_epfd, _rev, 1028, -1);
+        if (num_events > 0) {
+            for (int i = 0; i < num_events; ++i)
+            {
+                handle_event(_rev[i]);
+            }
+        }
+    }
 }
 
 void Server::sclose() {
     close(_sockfd);
 }
+
+void Server::handle_event(struct epoll_event ev) {
+    int fd = ev.data.fd;
+
+    if (fd == _sockfd) {
+        // Authentication
+        // Set a Nickname
+        // Set an Username
+    } else if (ev.events & EPOLLIN) {
+        // Join a Channel
+
+        // Send/Received a message (client<->client and client<->channel)
+
+        // Kick command
+        // Invite command
+        // Topic command
+        // Mode command (i, t, k, o, l)
+    }
+}
+
