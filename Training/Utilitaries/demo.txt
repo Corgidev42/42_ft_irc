@@ -1,0 +1,4 @@
+    file << "Ceci est un fichier de test.\n";
+    file << "Il contient plusieurs lignes.\n";
+    file << "Lseek permettra de sauter des parties du fichier.\n";
+    file << "Fin du fichier.\n";
