@@ -12,14 +12,14 @@ int main(int argc, char *argv[])
     Server server(port, password);
 
     // Server run
-    try {
+    // try {
         server.run();
-    } catch (exception& e) {
-        cout << e.what() << endl;
-    }
+    // } catch (exception& e) {
+    //     cout << e.what() << endl;
+    // }
 
     //Server close
-    server.close();
+    server.sclose();
 
     return (1);
 }
