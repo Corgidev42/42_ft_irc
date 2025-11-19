@@ -40,12 +40,9 @@ Server::Server(const string& port, const string& password) : _port(stoi(port)), 
 void Server::run() {
     while(true) {
         int num_events = epoll_wait(_epfd, _rev, 1028, -1);
-        if (num_events > 0) {
+        if (num_events > 0)
             for (int i = 0; i < num_events; ++i)
-            {
                 handle_event(_rev[i]);
-            }
-        }
     }
 }
 
@@ -58,9 +55,11 @@ void Server::handle_event(struct epoll_event ev) {
 
     if (fd == _sockfd) {
         // Authentication
+    } else if (fd == STDIN_FILENO) {
+        // If "quit" close server
+    } else if (ev.events & EPOLLIN) {
         // Set a Nickname
         // Set an Username
-    } else if (ev.events & EPOLLIN) {
         // Join a Channel
 
         // Send/Received a message (client<->client and client<->channel)
