@@ -22,7 +22,7 @@ endif
 # 📂 Répertoires
 SRC_DIR = src/
 OBJ_DIR = obj
-INCLUDE_DIR = .
+INCLUDE_DIR = include
 
 # 📌 Fichiers sources et objets
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp)
