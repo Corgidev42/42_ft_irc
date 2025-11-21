@@ -50,14 +50,33 @@ void Server::sclose() {
     close(_sockfd);
 }
 
+int cfd;
+char buf[1028];
+
 void Server::handle_event(struct epoll_event ev) {
     int fd = ev.data.fd;
 
     if (fd == _sockfd) {
         // Authentication
+        struct sockaddr peer_addr;
+        socklen_t peer_addr_size = sizeof(peer_addr);
+
+        cfd = accept(fd, &peer_addr, &peer_addr_size);
+
+        struct epoll_event nev;
+        nev.events = EPOLLIN;
+        nev.data.fd = cfd;
+        epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
     } else if (fd == STDIN_FILENO) {
         // If "quit" close server
     } else if (ev.events & EPOLLIN) {
+        int nbr = read(cfd, &buf, sizeof(buf));
+        if (nbr > 0) {
+            cout << buf << endl;
+        }
+        string text = "PING :Test\r\n";
+        int n = send(cfd, text.c_str(), sizeof(text), 0);
+        
         // Set a Nickname
         // Set an Username
         // Join a Channel
