@@ -1,7 +1,13 @@
 #include "Client.hpp"
 
-Client::Client(int fd) : _fd(fd) {}
+Client::Client() : _fd(-1) {
+    cout << "test0" << endl;
 
+}
+
+Client::Client(int fd) : _fd(fd) {
+    cout << "test" << endl;
+}
 
 string Client::getUsername() const {
     return _username;

@@ -23,7 +23,7 @@ class Server {
         struct addrinfo _sin, *_res, *_p;
         struct epoll_event _rev[1028];
 
-        unordered_map<int, Client> clients;
+        unordered_map<int, Client> _clients;
 
         void handle_event(struct epoll_event ev);
         void addNewClient(int fd);

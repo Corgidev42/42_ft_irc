@@ -10,6 +10,7 @@ class Client {
         string buffer;
         int _fd;
     public:
+        Client();
         Client(int fd);
 
         // Getters / Setters
