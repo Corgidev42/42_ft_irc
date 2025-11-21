@@ -4,7 +4,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <fcntl.h> 
+#include <fcntl.h>
+#include <netdb.h>
 #include "common.hpp"
 
 
@@ -17,7 +18,7 @@ class Server {
 
         int _sockfd;
         int _epfd;
-        struct sockaddr_in _sin;
+        struct addrinfo _sin, *_res, *_p;
         struct epoll_event _rev[1028];
 
         void handle_event(struct epoll_event ev);
