@@ -80,26 +80,28 @@ char buf[1028];
 void Server::handle_event(struct epoll_event ev) {
 	int fd = ev.data.fd;
 
-	if (fd == _sockfd) {
-		// Authentication
-		struct sockaddr peer_addr;
-		socklen_t peer_addr_size = sizeof(peer_addr);
+    if (fd == _sockfd) {
+        // Authentication
+        addNewClient(fd);
+    } else if (fd == STDIN_FILENO) {
+        // If "quit" close server
+    } else if (ev.events & EPOLLIN) {
 
-		cfd = accept(fd, &peer_addr, &peer_addr_size);
+        int nbr = read(fd, &buf, sizeof(buf));
+        if (nbr > 0) {
+            cout << buf << endl;
+        }
 
-		struct epoll_event nev;
-		nev.events = EPOLLIN;
-		nev.data.fd = cfd;
-		epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
-	} else if (fd == STDIN_FILENO) {
-		// If "quit" close server
-	} else if (ev.events & EPOLLIN) {
-		int nbr = read(cfd, &buf, sizeof(buf));
-		if (nbr > 0) {
-			cout << buf << endl;
-		}
-		string text = "PING :Test\r\n";
-		int n = send(cfd, text.c_str(), sizeof(text), 0);
+        string nick = "ezeppa";
+        string welcome =
+            ":myserver 001 " + nick + " :Welcome to my IRC server\r\n";
+            // ":myserver 002 " + nick + " :Your host is myserver\r\n";
+
+        send(fd, welcome.c_str(), welcome.size(), 0);
+
+        // Set a Nickname
+        // Set an Username
+        // Join a Channel
 
 		// Set a Nickname
 		// Set an Username
@@ -114,3 +116,16 @@ void Server::handle_event(struct epoll_event ev) {
 	}
 }
 
+void Server::addNewClient(int fd) {
+    struct sockaddr_in peer_addr;
+    socklen_t peer_addr_size = sizeof(peer_addr);
+
+    cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
+
+    struct epoll_event nev;
+    nev.events = EPOLLIN;
+    nev.data.fd = cfd;
+    epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
+
+    clients[cfd] = Client{cfd};
+}

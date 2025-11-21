@@ -11,6 +11,10 @@ string Client::getNickname() const {
     return _username;
 }
 
+string Client::getRealname() const {
+    return _realname;
+}
+
 int Client::getFd() const {
     return _fd;
 }
@@ -22,6 +26,11 @@ Client& Client::setUsername(string username) {
 
 Client& Client::setNickname(string nickname) {
     _nickname = nickname;
+    return *this;
+}
+
+Client& Client::setRealname(string realname) {
+    _realname = realname;
     return *this;
 }
 
