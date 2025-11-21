@@ -58,18 +58,11 @@ void Server::handle_event(struct epoll_event ev) {
 
     if (fd == _sockfd) {
         // Authentication
-        struct sockaddr_in peer_addr;
-        socklen_t peer_addr_size = sizeof(peer_addr);
-
-        cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
-
-        struct epoll_event nev;
-        nev.events = EPOLLIN;
-        nev.data.fd = cfd;
-        epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
+        addNewClient(fd);
     } else if (fd == STDIN_FILENO) {
         // If "quit" close server
     } else if (ev.events & EPOLLIN) {
+
         int nbr = read(fd, &buf, sizeof(buf));
         if (nbr > 0) {
             cout << buf << endl;
@@ -95,3 +88,16 @@ void Server::handle_event(struct epoll_event ev) {
     }
 }
 
+void Server::addNewClient(int fd) {
+    struct sockaddr_in peer_addr;
+    socklen_t peer_addr_size = sizeof(peer_addr);
+
+    cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
+
+    struct epoll_event nev;
+    nev.events = EPOLLIN;
+    nev.data.fd = cfd;
+    epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
+
+    clients[cfd] = Client{cfd};
+}

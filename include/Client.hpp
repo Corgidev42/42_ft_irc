@@ -7,6 +7,7 @@ class Client {
         string _username;
         string _nickname;
         string _realname;
+        string buffer;
         int _fd;
     public:
         Client(int fd);
