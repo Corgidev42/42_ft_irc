@@ -3,9 +3,9 @@
 
 Server::Server(const string& port, const string& password) : _password(password) {
 	// Create serverSocket for listenng
-	//_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	//if (_sockfd == -1)
-	//   cerr << "Error: Socket init" << endl;
+	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_sockfd == -1)
+	  cerr << "Error: Socket init" << endl;
 
 	istringstream(port) >> _port;
 
@@ -128,5 +128,5 @@ void Server::addNewClient(int fd) {
     epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
 
 	std::map<int, Client>::value_type pair(cfd, Client(cfd));
-	_clients.insert(pair);	
+	_clients.insert(pair);
 }
