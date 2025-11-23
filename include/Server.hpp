@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <map>
 #include "common.hpp"
+#include "Client.hpp"
 
 
 // @TODO : Fonctions generales a faire en pointeurs de fonctions pour les differences entre les clients
@@ -28,8 +29,8 @@ class Server {
         void addNewClient(int fd);
     public:
         Server(const string& port, const string& password);
-        
+
         void run();
-        
         void sclose();
+
 };

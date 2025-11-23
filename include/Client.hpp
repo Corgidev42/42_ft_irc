@@ -25,6 +25,4 @@ class Client {
         Client& setRealname(string realname);
         Client& setBuffer(string buffer);
         Client& setFd(int fd);
-
-
 };
