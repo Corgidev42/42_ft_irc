@@ -53,5 +53,64 @@ void Server::run() {
 }
 
 void Server::sclose() {
-    close(_sockfd);
+	close(_sockfd);
+}
+
+char buf[1028];
+
+void Server::handle_event(struct epoll_event ev) {
+	int fd = ev.data.fd;
+
+    if (fd == _sockfd) {
+        // Authentication
+        addNewClient(fd);
+    } else if (fd == STDIN_FILENO) {
+        // If "quit" close server
+    } else if (ev.events & EPOLLIN) {
+        string buf;
+
+        int nbr = recv(fd, &buf, sizeof(buf), 0);
+        if (nbr > 0) {
+            cout << buf << endl;
+        }
+        _clients[fd].getBuffer().append(buf);
+
+        // string nick = "ezeppa";
+        // string welcome =
+        //     ":myserver 001 " + nick + " :Welcome to my IRC server\r\n";
+        //     // ":myserver 002 " + nick + " :Your host is myserver\r\n";
+
+        // send(fd, welcome.c_str(), welcome.size(), 0);
+
+        // Set a Nickname
+        // Set an Username
+        // Join a Channel
+
+		// Set a Nickname
+		// Set an Username
+		// Join a Channel
+
+		// Send/Received a message (client<->client and client<->channel)
+
+		// Kick command
+		// Invite command
+		// Topic command
+		// Mode command (i, t, k, o, l)
+	}
+}
+
+
+
+void Server::addNewClient(int fd) {
+    struct sockaddr_in peer_addr;
+    socklen_t peer_addr_size = sizeof(peer_addr);
+
+    int cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
+
+    struct epoll_event nev;
+    nev.events = EPOLLIN;
+    nev.data.fd = cfd;
+    epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
+
+    _clients[cfd] = Client{cfd};
 }

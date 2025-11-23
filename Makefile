@@ -1,8 +1,8 @@
 # 🛠 Compilateur et flags
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
-CXXFLAGS =
-LDFLAGS =
+# CXXFLAGS =
+LDFLAGS = -Llib -lbnf
 
 # 🏆 Nom du projet
 PROJECT_NAME = ft_irc

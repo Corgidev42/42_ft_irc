@@ -3,6 +3,8 @@
 
 int main(int argc, char *argv[])
 {
+    (void) argc;
+    (void) argv;
     // Tester la commande "./ircserv <port> <password>"
 
     string port = argv[1];

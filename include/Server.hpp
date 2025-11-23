@@ -4,6 +4,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <map>
 #include "common.hpp"
 
 
@@ -16,8 +19,13 @@ class Server {
 
         int _sockfd;
         int _epfd;
-        struct sockaddr_in _sin;
-        struct epoll_event _ev, rev[1028];
+        struct addrinfo _sin, *_res, *_p;
+        struct epoll_event _rev[1028];
+
+        map<int, Client> _clients;
+
+        void handle_event(struct epoll_event ev);
+        void addNewClient(int fd);
     public:
         Server(const string& port, const string& password);
         
