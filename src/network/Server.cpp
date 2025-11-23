@@ -12,7 +12,10 @@ Server::Server(const string& port, const string& password) : _port(stoi(port)), 
 	_sin.ai_flags = AI_PASSIVE;
 
 	if (getaddrinfo(NULL, "6667", &_sin, &_res))
+	{
 		cerr << "getaddrinfo error" << endl;
+		return 1;
+	}
 
 	fcntl(_sockfd, F_SETFL, O_NONBLOCK);
 
@@ -24,7 +27,7 @@ Server::Server(const string& port, const string& password) : _port(stoi(port)), 
 		if (_sockfd < 0) continue;
 
 		int opt = 1;
-		setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+		setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &_opt, sizeof(_opt));
 
 		if (bind(_sockfd, _p->ai_addr, _p->ai_addrlen) == 0) {
 			cout << "Bind success!\n";
@@ -71,6 +74,7 @@ void Server::sclose() {
 	close(_sockfd);
 }
 
+int cfd;
 char buf[1028];
 
 void Server::handle_event(struct epoll_event ev) {
@@ -82,6 +86,7 @@ void Server::handle_event(struct epoll_event ev) {
     } else if (fd == STDIN_FILENO) {
         // If "quit" close server
     } else if (ev.events & EPOLLIN) {
+
         int nbr = read(fd, &buf, sizeof(buf));
         if (nbr > 0) {
             cout << buf << endl;
@@ -115,12 +120,12 @@ void Server::addNewClient(int fd) {
     struct sockaddr_in peer_addr;
     socklen_t peer_addr_size = sizeof(peer_addr);
 
-    int cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
+    cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
 
     struct epoll_event nev;
     nev.events = EPOLLIN;
     nev.data.fd = cfd;
     epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
 
-    _clients[cfd] = Client{cfd};
+    clients[cfd] = Client{cfd};
 }
