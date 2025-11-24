@@ -166,5 +166,22 @@ void Server::handleRead(Client& c)
     // Ajouter la data au buffer d'entrée du client
     c.getBuffer().append(buf, n);
 
-	cout << c.getBuffer() << endl;
+	// parserIRC.ast = parserIRC.parser.parse("<message>", c.getBuffer(), parserIRC.consumed);
+	parserIRC.ast = parserIRC.parser.parse("<message>", "NICK ezeppa\r\n", parserIRC.consumed);
+	if (parserIRC.ast == 0) {
+		cout << "[DEBUG]: Command unknown : " << c.getBuffer() << endl;
+        c.getBuffer().erase(0, c.getBuffer().size());
+	}
+	else if (parserIRC.consumed > 0) {
+		DataExtractor extractor;
+		ExtractedData data = extractor.extract(parserIRC.ast);
+
+		if (data.has("<message>")) {
+			std::vector<std::string> words = data.all("<message>");
+			std::cout << "Found " << words.size() << " messages:" << std::endl;
+			for (size_t i = 0; i < words.size(); ++i) {
+				std::cout << "  - " << words[i] << std::endl;
+			}
+		}
+	}
 }
