@@ -1,4 +1,6 @@
 #include "network/Server.hpp"
+#include "Message.hpp"
+#include "CommandFactory.hpp"
 #include <sstream>
 #include <cstdlib>
 
@@ -6,7 +8,7 @@ Server::Server(const string& port, const string& password) : _password(password)
 	// Create serverSocket for listenng
 	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_sockfd == -1)
-	  cerr << "Error: Socket init" << endl;
+	cerr << "Error: Socket init" << endl;
 
 	istringstream(port) >> _port;
 
@@ -73,34 +75,34 @@ void Server::run() {
 
 void Server::sclose()
 {
-    for (std::map<int, Client>::iterator it = _clients.begin();
-         it != _clients.end(); ++it)
-    {
-        int fd = it->second.getFd();
-        if (fd >= 0) close(fd);
-    }
-    _clients.clear();
+	for (std::map<int, Client>::iterator it = _clients.begin();
+		it != _clients.end(); ++it)
+	{
+		int fd = it->second.getFd();
+		if (fd >= 0) close(fd);
+	}
+	_clients.clear();
 
-    if (_sockfd >= 0) close(_sockfd);
-    if (_epfd >= 0) close(_epfd);
+	if (_sockfd >= 0) close(_sockfd);
+	if (_epfd >= 0) close(_epfd);
 
-    std::cout << "Server closed cleanly." << std::endl;
+	std::cout << "Server closed cleanly." << std::endl;
 }
 
 void Server::handle_event(struct epoll_event ev) {
 	int fd = ev.data.fd;
 
-    if (fd == _sockfd) {
-        // Authentication
-        addNewClient(fd);
-    } else if (fd == STDIN_FILENO) {
+	if (fd == _sockfd) {
+		// Authentication
+		addNewClient(fd);
+	} else if (fd == STDIN_FILENO) {
 		std::string line;
-        std::getline(std::cin, line);
-        if (line == "quit") {
-            sclose();
-            exit(0);
-        }
-    } else {
+		std::getline(std::cin, line);
+		if (line == "quit") {
+			sclose();
+			exit(0);
+		}
+	} else {
 		std::map<int, Client>::iterator it = _clients.find(fd);
 		if (it != _clients.end()) {
 			Client& c = it->second;
@@ -111,97 +113,84 @@ void Server::handle_event(struct epoll_event ev) {
 }
 
 void Server::addNewClient(int fd) {
-    struct sockaddr_in peer_addr;
-    socklen_t peer_addr_size = sizeof(peer_addr);
+	struct sockaddr_in peer_addr;
+	socklen_t peer_addr_size = sizeof(peer_addr);
 
-    int cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
+	int cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
 
-    struct epoll_event nev;
-    nev.events = EPOLLIN;
-    nev.data.fd = cfd;
-    epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
+	struct epoll_event nev;
+	nev.events = EPOLLIN;
+	nev.data.fd = cfd;
+	epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
 
-    Client client(cfd);
-    client.setEPollServerFd(_epfd);
+	Client client(cfd);
+	client.setEPollServerFd(_epfd);
 
-    _clients.insert(std::make_pair(cfd, client));
+	_clients.insert(std::make_pair(cfd, client));
 }
 
 void Server::handleWrite(Client& c)
 {
-	cout << "EPOLLOUT" << endl;
-    if (c.getWriteBuffer().empty())
-    {
-        c.disableWriteEvents();
-        return;
-    }
+	if (c.getWriteBuffer().empty())
+	{
+		c.disableWriteEvents();
+		return;
+	}
 
-    ssize_t sent = send(c.getFd(),
-                        c.getWriteBuffer().c_str(),
-                        c.getWriteBuffer().size(),
-                        0);
+	ssize_t sent = send(c.getFd(),
+						c.getWriteBuffer().c_str(),
+						c.getWriteBuffer().size(),
+						0);
 
-    if (sent > 0)
-    {
-        c.getWriteBuffer().erase(0, sent);
+	if (sent > 0)
+	{
+		c.getWriteBuffer().erase(0, sent);
 
-        if (c.getWriteBuffer().empty())
-            c.disableWriteEvents();
-    }
+		if (c.getWriteBuffer().empty())
+			c.disableWriteEvents();
+	}
 	// Gerer le cas de sent < 0
 }
 
 void Server::handleRead(Client& c)
 {
-    char buf[512];
-    ssize_t n = recv(c.getFd(), buf, sizeof(buf), 0);
+	char buf[512];
+	ssize_t n = recv(c.getFd(), buf, sizeof(buf), 0);
 
-	// cout << "TEST " << c.getFd() << endl;
-    if (n == 0)
-    {
-        // Le client a fermé la connexion
+	if (n == 0)
+	{
+		// Le client a fermé la connexion
 		close(c.getFd());
-        return;
-    }
+		return;
+	}
 	// Gerer le cas de n < 0
 
-    // Ajouter la data au buffer d'entrée du client
-    c.getReadBuffer().append(buf, n);
+	c.getReadBuffer().append(buf, n);
 
-	size_t pos = c.getReadBuffer().find("\r\n");
-	while (pos > 0) {
+	size_t pos = c.getReadBuffer().find("\r\n") + 2;
+	while (pos > 2) {
 		string msg = c.getReadBuffer().substr(0, pos);
-
-		// std::string debug = msg;
-		// for (size_t i = 0; i < debug.size(); ++i)
-		// {
-		// 	if (debug[i] == '\r') debug.replace(i, 1, "\\r");
-		// 	else if (debug[i] == '\n') debug.replace(i, 1, "\\n");
-		// }
-
-		// std::cout << "MESSAGE : '" << debug << "'" << std::endl;
+		struct Message parsedMessage;
 
 		parserIRC.ast = parserIRC.parser.parse("<message>", msg, parserIRC.consumed);
 		if (parserIRC.ast == 0) {
-			cout << "[DEBUG]: Command unknown : '" << c.getReadBuffer() << "'" << endl;
+			cout << "[DEBUG]: Command unknown : '" << msg << "'" << endl;
 		}
-		printAST(parserIRC.ast);
-		cout << msg << endl;
-		cout << parserIRC.consumed << endl;
-		// else if (parserIRC.consumed > 0) {
-		// 	DataExtractor extractor;
-		// 	ExtractedData data = extractor.extract(parserIRC.ast);
+		else if (parserIRC.consumed > 0) {
+			DataExtractor extractor;
+			ExtractedData data = extractor.extract(parserIRC.ast);
 
-		// 	if (data.has("<message>")) {
-		// 		std::vector<std::string> words = data.all("<message>");
-		// 		std::cout << "Found " << words.size() << " messages:" << std::endl;
-		// 		for (size_t i = 0; i < words.size(); ++i) {
-		// 			std::cout << "  - " << words[i] << std::endl;
-		// 		}
-		// 	}
-		// 	pos = parserIRC.consumed;
-		// }
-		c.getReadBuffer().erase(0, pos + 2);
+			if (data.has("<prefix>"))
+				parsedMessage.prefix = data.first("<prefix>");
+			if (data.has("<command>"))
+				parsedMessage.command = data.first("<command>");
+			if (data.has("<params>"))
+				parsedMessage.params = data.all("<params>");
+			pos = parserIRC.consumed;
+			delete parserIRC.ast;
+		}
+		c.getReadBuffer().erase(0, pos);
+		// @TODO Even: Appeler les commandes ici
 		if (c.getReadBuffer().empty())
 			break;
 

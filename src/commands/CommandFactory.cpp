@@ -24,7 +24,7 @@
 //     std::map<std::string, ICommand*>::iterator it = _commands.find(upperName);
 
 //     if (it != _commands.end())
-//         return (it->second;)
+//         return (it->second);
 
 //     return (NULL);
 // }
