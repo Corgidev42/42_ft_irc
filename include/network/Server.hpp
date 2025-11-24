@@ -27,10 +27,11 @@ class Server {
 
         void handle_event(struct epoll_event ev);
         void addNewClient(int fd);
+        void handleWrite(Client& c);
+        void handleRead(Client& c);
     public:
         Server(const string& port, const string& password);
 
         void run();
         void sclose();
-
 };

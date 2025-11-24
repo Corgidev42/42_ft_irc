@@ -1,5 +1,6 @@
-#include "Server.hpp"
+#include "network/Server.hpp"
 #include <sstream>
+#include <cstdlib>
 
 Server::Server(const string& port, const string& password) : _password(password) {
 	// Create serverSocket for listenng
@@ -70,12 +71,21 @@ void Server::run() {
 	}
 }
 
-void Server::sclose() {
-	close(_sockfd);
-}
+void Server::sclose()
+{
+    for (std::map<int, Client>::iterator it = _clients.begin();
+         it != _clients.end(); ++it)
+    {
+        int fd = it->second.getFd();
+        if (fd >= 0) close(fd);
+    }
+    _clients.clear();
 
-int cfd;
-char buf[1028];
+    if (_sockfd >= 0) close(_sockfd);
+    if (_epfd >= 0) close(_epfd);
+
+    std::cout << "Server closed cleanly." << std::endl;
+}
 
 void Server::handle_event(struct epoll_event ev) {
 	int fd = ev.data.fd;
@@ -84,35 +94,19 @@ void Server::handle_event(struct epoll_event ev) {
         // Authentication
         addNewClient(fd);
     } else if (fd == STDIN_FILENO) {
-        // If "quit" close server
-    } else if (ev.events & EPOLLIN) {
-
-        int nbr = read(fd, &buf, sizeof(buf));
-        if (nbr > 0) {
-            cout << buf << endl;
+		std::string line;
+        std::getline(std::cin, line);
+        if (line == "quit") {
+            sclose();
+            exit(0);
         }
-
-        string nick = "ezeppa";
-        string welcome =
-            ":myserver 001 " + nick + " :Welcome to my IRC server\r\n";
-            // ":myserver 002 " + nick + " :Your host is myserver\r\n";
-
-        send(fd, welcome.c_str(), welcome.size(), 0);
-
-        // Set a Nickname
-        // Set an Username
-        // Join a Channel
-
-		// Set a Nickname
-		// Set an Username
-		// Join a Channel
-
-		// Send/Received a message (client<->client and client<->channel)
-
-		// Kick command
-		// Invite command
-		// Topic command
-		// Mode command (i, t, k, o, l)
+    } else {
+		std::map<int, Client>::iterator it = _clients.find(fd);
+		if (it != _clients.end()) {
+			Client& c = it->second;
+			if (ev.events & EPOLLOUT) handleWrite(c);
+			if (ev.events & EPOLLIN)  handleRead(c);
+		}
 	}
 }
 
@@ -120,13 +114,57 @@ void Server::addNewClient(int fd) {
     struct sockaddr_in peer_addr;
     socklen_t peer_addr_size = sizeof(peer_addr);
 
-    cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
+    int cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
 
     struct epoll_event nev;
     nev.events = EPOLLIN;
     nev.data.fd = cfd;
     epoll_ctl(_epfd, EPOLL_CTL_ADD, cfd, &nev);
 
-	std::map<int, Client>::value_type pair(cfd, Client(cfd));
-	_clients.insert(pair);
+    Client client(cfd);
+    client.setEPollServerFd(_epfd);
+
+    _clients.insert(std::make_pair(cfd, client));
+}
+
+void Server::handleWrite(Client& c)
+{
+    if (c.getBuffer().empty())
+    {
+        c.disableWriteEvents();
+        return;
+    }
+
+    ssize_t sent = send(c.getFd(),
+                        c.getBuffer().c_str(),
+                        c.getBuffer().size(),
+                        0);
+
+    if (sent > 0)
+    {
+        c.getBuffer().erase(0, sent);
+
+        if (c.getBuffer().empty())
+            c.disableWriteEvents();
+    }
+	// Gerer le cas de sent < 0
+}
+
+void Server::handleRead(Client& c)
+{
+    char buf[512];
+    ssize_t n = recv(c.getFd(), buf, sizeof(buf), 0);
+
+    if (n == 0)
+    {
+        // Le client a fermé la connexion
+		close(c.getFd());
+        return;
+    }
+	// Gerer le cas de n < 0
+
+    // Ajouter la data au buffer d'entrée du client
+    c.getBuffer().append(buf, n);
+
+	cout << c.getBuffer() << endl;
 }

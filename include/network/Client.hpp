@@ -9,6 +9,7 @@ class Client {
         string _realname;
         string _buffer;
         int _fd;
+        int _ePollServerFd;
     public:
         Client();
         Client(int fd);
@@ -17,12 +18,16 @@ class Client {
         string getUsername() const;
         string getNickname() const;
         string getRealname() const;
-        string getBuffer() const;
+        string& getBuffer();
         int getFd() const;
+        int getEPollServerFd() const;
 
         Client& setUsername(string username);
         Client& setNickname(string nickname);
         Client& setRealname(string realname);
-        Client& setBuffer(string buffer);
         Client& setFd(int fd);
+        Client& setEPollServerFd(int epsfd);
+
+        void enableWriteEvents();
+        void disableWriteEvents();
 };

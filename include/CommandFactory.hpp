@@ -4,9 +4,8 @@
 #include <string>
 #include "ICommand.hpp"
 
-#include "impl/JoinCommand.hpp"
-#include "impl/KickCommand.hpp"
-...
+// #include "impl/JoinCommand.hpp"
+// #include "impl/KickCommand.hpp"
 
 class CommandFactory{
   private:

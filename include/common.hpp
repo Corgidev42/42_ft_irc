@@ -3,6 +3,14 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <sstream>
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <map>
 
 using namespace std;
 

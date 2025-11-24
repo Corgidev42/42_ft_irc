@@ -1,5 +1,5 @@
 #include "common.hpp"
-#include "Server.hpp"
+#include "network/Server.hpp"
 
 ParserIRC parserIRC;
 
