@@ -39,7 +39,7 @@ void enqueueMessage(
 
     std::string msg = formatMessage(def.format, args);
 
-    client.getBuffer() += msg;
+    client.getWriteBuffer() += msg;
 
     client.enableWriteEvents();
 }

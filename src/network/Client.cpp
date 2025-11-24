@@ -16,8 +16,12 @@ string Client::getRealname() const {
     return _realname;
 }
 
-string& Client::getBuffer() {
-    return _buffer;
+string& Client::getReadBuffer() {
+    return _readBuffer;
+}
+
+string& Client::getWriteBuffer() {
+    return _writeBuffer;
 }
 
 int Client::getFd() const {

@@ -19,7 +19,7 @@ void initParserIRC() {
     parserIRC.grammar.addRule("<middle> ::= <nospecial> { <nospace> }");
     parserIRC.grammar.addRule("<trailing> ::= { <safechar> }");
 
-    parserIRC.grammar.addRule("<params> ::= <SPACE> [ ':' <trailing> | <middle> <params> ]");
+    parserIRC.grammar.addRule("<params> ::= <SPACE> [ ':' <trailing> | <middle> [ <params> ] ]");
     parserIRC.grammar.addRule("<command> ::= <letter> { <letter> } | <number> <number> <number>");
 
     parserIRC.grammar.addRule("<nick> ::= <letter> { <letter> | <number> | <special> }");
@@ -30,7 +30,9 @@ void initParserIRC() {
     parserIRC.grammar.addRule("<servername> ::= <letter> { <hostname-char> } <hostname-end>");
 
     parserIRC.grammar.addRule("<prefix> ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]");
-    parserIRC.grammar.addRule("<message> ::= [ ':' <prefix> <SPACE> ] <command> <params> <crlf>");
+    // @TODO Even: Faire fonctionner crlf
+    // parserIRC.grammar.addRule("<message> ::= [ ':' <prefix> <SPACE> ] <command> <params> <crlf>");
+    parserIRC.grammar.addRule("<message> ::= [ ':' <prefix> <SPACE> ] <command> <params>");
 }
 
 int main(int argc, char *argv[])

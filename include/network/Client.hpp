@@ -7,7 +7,8 @@ class Client {
         string _username;
         string _nickname;
         string _realname;
-        string _buffer;
+        string _readBuffer;
+        string _writeBuffer;
         int _fd;
         int _ePollServerFd;
     public:
@@ -18,7 +19,8 @@ class Client {
         string getUsername() const;
         string getNickname() const;
         string getRealname() const;
-        string& getBuffer();
+        string& getReadBuffer();
+        string& getWriteBuffer();
         int getFd() const;
         int getEPollServerFd() const;
 

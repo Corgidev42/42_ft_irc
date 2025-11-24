@@ -129,22 +129,23 @@ void Server::addNewClient(int fd) {
 
 void Server::handleWrite(Client& c)
 {
-    if (c.getBuffer().empty())
+	cout << "EPOLLOUT" << endl;
+    if (c.getWriteBuffer().empty())
     {
         c.disableWriteEvents();
         return;
     }
 
     ssize_t sent = send(c.getFd(),
-                        c.getBuffer().c_str(),
-                        c.getBuffer().size(),
+                        c.getWriteBuffer().c_str(),
+                        c.getWriteBuffer().size(),
                         0);
 
     if (sent > 0)
     {
-        c.getBuffer().erase(0, sent);
+        c.getWriteBuffer().erase(0, sent);
 
-        if (c.getBuffer().empty())
+        if (c.getWriteBuffer().empty())
             c.disableWriteEvents();
     }
 	// Gerer le cas de sent < 0
@@ -155,6 +156,7 @@ void Server::handleRead(Client& c)
     char buf[512];
     ssize_t n = recv(c.getFd(), buf, sizeof(buf), 0);
 
+	// cout << "TEST " << c.getFd() << endl;
     if (n == 0)
     {
         // Le client a fermé la connexion
@@ -164,24 +166,46 @@ void Server::handleRead(Client& c)
 	// Gerer le cas de n < 0
 
     // Ajouter la data au buffer d'entrée du client
-    c.getBuffer().append(buf, n);
+    c.getReadBuffer().append(buf, n);
 
-	// parserIRC.ast = parserIRC.parser.parse("<message>", c.getBuffer(), parserIRC.consumed);
-	parserIRC.ast = parserIRC.parser.parse("<message>", "NICK ezeppa\r\n", parserIRC.consumed);
-	if (parserIRC.ast == 0) {
-		cout << "[DEBUG]: Command unknown : " << c.getBuffer() << endl;
-        c.getBuffer().erase(0, c.getBuffer().size());
-	}
-	else if (parserIRC.consumed > 0) {
-		DataExtractor extractor;
-		ExtractedData data = extractor.extract(parserIRC.ast);
+	size_t pos = c.getReadBuffer().find("\r\n");
+	while (pos > 0) {
+		string msg = c.getReadBuffer().substr(0, pos);
 
-		if (data.has("<message>")) {
-			std::vector<std::string> words = data.all("<message>");
-			std::cout << "Found " << words.size() << " messages:" << std::endl;
-			for (size_t i = 0; i < words.size(); ++i) {
-				std::cout << "  - " << words[i] << std::endl;
-			}
+		// std::string debug = msg;
+		// for (size_t i = 0; i < debug.size(); ++i)
+		// {
+		// 	if (debug[i] == '\r') debug.replace(i, 1, "\\r");
+		// 	else if (debug[i] == '\n') debug.replace(i, 1, "\\n");
+		// }
+
+		// std::cout << "MESSAGE : '" << debug << "'" << std::endl;
+
+		parserIRC.ast = parserIRC.parser.parse("<message>", msg, parserIRC.consumed);
+		if (parserIRC.ast == 0) {
+			cout << "[DEBUG]: Command unknown : '" << c.getReadBuffer() << "'" << endl;
 		}
+		printAST(parserIRC.ast);
+		cout << msg << endl;
+		cout << parserIRC.consumed << endl;
+		// else if (parserIRC.consumed > 0) {
+		// 	DataExtractor extractor;
+		// 	ExtractedData data = extractor.extract(parserIRC.ast);
+
+		// 	if (data.has("<message>")) {
+		// 		std::vector<std::string> words = data.all("<message>");
+		// 		std::cout << "Found " << words.size() << " messages:" << std::endl;
+		// 		for (size_t i = 0; i < words.size(); ++i) {
+		// 			std::cout << "  - " << words[i] << std::endl;
+		// 		}
+		// 	}
+		// 	pos = parserIRC.consumed;
+		// }
+		c.getReadBuffer().erase(0, pos + 2);
+		if (c.getReadBuffer().empty())
+			break;
+
+		pos = c.getReadBuffer().find("\r\n");
+		return ;
 	}
 }
