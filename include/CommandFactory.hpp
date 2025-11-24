@@ -6,6 +6,10 @@
 
 // #include "impl/JoinCommand.hpp"
 // #include "impl/KickCommand.hpp"
+#include "impl/UserCommand.hpp"
+#include "impl/NickCommand.hpp"
+#include "impl/PingCommand.hpp"
+// ...
 
 class CommandFactory{
   private:

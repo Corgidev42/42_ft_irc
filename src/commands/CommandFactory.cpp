@@ -2,8 +2,10 @@
 // #include <iostream>
 
 // CommandFactory::CommandFactory(){
-//     _commands["JOIN"] = new JoinCommand();
+//     // _commands["JOIN"] = new JoinCommand();
 //     _commands["NICK"] = new NickCommand();
+//     _commands["USER"] = new UserCommand();
+//     _commands["PING"] = new PingCommand();
 //    //...
 // }
 
