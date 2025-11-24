@@ -6,18 +6,50 @@
 NickCommand::NickCommand(){};
 NickCommand::~NickCommand(){};
 
+static bool isNicknameValid(const std::string& nick){
+  if (nick.empty() || nick.size() > 9)
+    return (false);
+  if (isdigit(nick[0]))
+    return (false);
+
+  std::string special = "[]\\`_^{|}";
+  for (size_t i = 0; i < nick.size(); i++){
+    if (!isalnum(nick[i]) && special.find(nick[i]) == std::string::npos)
+      return (false);
+  }
+  return (true);
+}
+
+
+
 void NickCommand::execute(Server& server, Client& client, const Message& messge){
     if (message.params.empty()){
         // client.reply(ERR_NONICKNAMEGIVEN);
         return ;
     }
 
-    std::string nickname = message.params[0];
+    std::string newNick = message.params[0];
+    if (!isNicknameValid(newNick)){
+      client.reply(ERR_ERRONEUSNICKNAME)
+      return ;
+    }
 
-    // TODO : check si pseudo deja pris
-    client.setNickname(nickname);
-    // TODO : envoeyr un message au client pour lui dire : poto c'e'st bon ton nickname est valide.
+    if (server.getClientByNickname(newNick)){
+      std::string currentNick = client.getNickname();
+      if (currentNick.empty())
+        currentNick = "*";
 
-    // debug
-    std::cout << "client fd :" << client.getFd() << " nick set to : " << nickname << std::endl;
+      client.reply(ERR_NICKNAMEINUSE);
+      return;
+    }
+
+    std::string oldNick = client.getNickname();
+    client.setNickname(newNick);
+
+    if (client.isRegistered()) {
+        std::string oldPrefix = oldNick + "!" + client.getUsername() + "@" + client.getHostname();
+        std::string msg = ":" + oldPrefix + " NICK :" + newNick;
+        client.reply(msg);
+    }
+
 }
