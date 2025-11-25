@@ -198,3 +198,15 @@ void Server::handleRead(Client& c)
 		return ;
 	}
 }
+
+Client* Server::getClientByNickname(const string& nickname){
+	map<int, Client*>::iterator it;
+
+	for (it = _clients.begin(); it != _clients.end(); it++){
+		Client* currentClient = it->second;
+
+		if (currentClient->getNickname() == nickname)
+			return currentClient;
+	}
+	return (NULL);
+}

@@ -11,6 +11,7 @@ class Client {
         string _writeBuffer;
         int _fd;
         int _ePollServerFd;
+        bool _isRegistered;
     public:
         Client();
         Client(int fd);
@@ -23,13 +24,18 @@ class Client {
         string& getWriteBuffer();
         int getFd() const;
         int getEPollServerFd() const;
+        bool isRegistered() const;
 
         Client& setUsername(string username);
         Client& setNickname(string nickname);
         Client& setRealname(string realname);
         Client& setFd(int fd);
         Client& setEPollServerFd(int epsfd);
+        void setRegistered(bool status)
 
         void enableWriteEvents();
         void disableWriteEvents();
+
+        void reply(const std::string& message)
+
 };

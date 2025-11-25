@@ -34,4 +34,5 @@ class Server {
 
         void run();
         void sclose();
+        Client* getClientByNickname(const string& nickname);
 };

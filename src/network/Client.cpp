@@ -32,6 +32,10 @@ int Client::getEPollServerFd() const {
     return _ePollServerFd;
 }
 
+bool Client::isRegistered(){
+    return _isRegistered;
+}
+
 Client& Client::setUsername(string username) {
     _username = username;
     return *this;
@@ -57,6 +61,10 @@ Client& Client::setEPollServerFd(int ePollServerFd) {
     return *this;
 }
 
+void setRegistered(bool status){
+    _isRegistered = status;
+}
+
 void Client::enableWriteEvents() {
     epoll_event ev;
     ev.events = EPOLLIN | EPOLLOUT;
@@ -71,4 +79,9 @@ void Client::disableWriteEvents() {
     ev.data.ptr = this;
 
     epoll_ctl(_ePollServerFd, EPOLL_CTL_MOD, _fd, &ev);
+}
+
+void Client::reply(const std::string& message){
+    client.getWriteBuffer() += message;
+    client.enableWriteEvents();
 }
