@@ -66,7 +66,7 @@ Server::Server(const string& port, const string& password) : _password(password)
 
 void Server::run() {
 	while(true) {
-		int num_events = epoll_wait(_epfd, _rev, 1028, -1);
+		int num_events = epoll_wait	(_epfd, _rev, 1028, -1);
 		if (num_events > 0)
 			for (int i = 0; i < num_events; ++i)
 				handle_event(_rev[i]);
@@ -139,6 +139,7 @@ void Server::handleWrite(Client& c)
 {
 	if (c.getWriteBuffer().empty())
 	{
+		cout << "WRITE BUFFER EMPTY" << endl;
 		c.disableWriteEvents();
 		return;
 	}
@@ -190,7 +191,6 @@ void Server::handleRead(Client& c)
 
 			parsedMessage.prefix = data.first("<prefix>");
 			parsedMessage.command = data.first("<command>");
-			// @TODO Even: merge middle et trailing
 			parsedMessage.params = data.all("<middle>");
 			for (size_t i = 0; i < data.all("<trailing>").size(); i++)
 				parsedMessage.params.push_back(data.all("<trailing>")[i]);
