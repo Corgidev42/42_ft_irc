@@ -32,7 +32,7 @@ int Client::getEPollServerFd() const {
     return _ePollServerFd;
 }
 
-bool Client::isRegistered(){
+bool Client::isRegistered() const {
     return _isRegistered;
 }
 
@@ -61,7 +61,7 @@ Client& Client::setEPollServerFd(int ePollServerFd) {
     return *this;
 }
 
-void setRegistered(bool status){
+void Client::setRegistered(bool status){
     _isRegistered = status;
 }
 
@@ -81,7 +81,8 @@ void Client::disableWriteEvents() {
     epoll_ctl(_ePollServerFd, EPOLL_CTL_MOD, _fd, &ev);
 }
 
-void Client::reply(const std::string& message){
-    client.getWriteBuffer() += message;
-    client.enableWriteEvents();
+void Client::enqueueMessage(const std::string& message){
+    getWriteBuffer() += message;
+    cout << "enqueueMessage : " << getWriteBuffer() << endl;
+    enableWriteEvents();
 }

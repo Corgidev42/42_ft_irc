@@ -4,9 +4,10 @@
 
 class KickCommand : public ICommand {
 public:
-     KickCommand : public ICommand();
-    ~ KickCommand : public ICommand();
+    KickCommand();
+    ~KickCommand();
 
     void execute(Server& server, Client& client, const Message& message);
 
+    
 };

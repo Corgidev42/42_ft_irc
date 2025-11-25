@@ -31,11 +31,10 @@ class Client {
         Client& setRealname(string realname);
         Client& setFd(int fd);
         Client& setEPollServerFd(int epsfd);
-        void setRegistered(bool status)
+        void setRegistered(bool status);
 
         void enableWriteEvents();
         void disableWriteEvents();
 
-        void reply(const std::string& message)
-
+        void enqueueMessage(const std::string& message);
 };

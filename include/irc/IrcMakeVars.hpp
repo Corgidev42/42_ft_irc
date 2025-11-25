@@ -8,6 +8,9 @@ class MakeVars
 {
 public:
     MakeVars() {}
+    MakeVars(std::map<std::string, std::string> nvars) {
+        vars = nvars;
+    }
 
     // Méthode permettant d’enchaîner les appels
     MakeVars& operator()(const std::string& key, const std::string& value)

@@ -33,9 +33,6 @@ void initParserIRC() {
     parserIRC.grammar.addRule("<message> ::= [ ':' <prefix> <SPACE> ] <command> <params> <crlf>");
 }
 
-#include "irc/IrcReplies.hpp"
-#include "irc/IrcMakeVars.hpp"
-
 int main(int argc, char *argv[])
 {
     (void) argc;

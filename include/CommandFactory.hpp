@@ -4,12 +4,14 @@
 #include <string>
 #include "ICommand.hpp"
 
-// #include "impl/JoinCommand.hpp"
-// #include "impl/KickCommand.hpp"
-#include "impl/UserCommand.hpp"
+#include "impl/InviteCommand.hpp"
+#include "impl/JoinCommand.hpp"
+#include "impl/KickCommand.hpp"
+#include "impl/ModeCommand.hpp"
 #include "impl/NickCommand.hpp"
 #include "impl/PingCommand.hpp"
-// ...
+#include "impl/TopicCommand.hpp"
+#include "impl/UserCommand.hpp"
 
 class CommandFactory{
   private:

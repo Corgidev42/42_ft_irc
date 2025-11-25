@@ -18,6 +18,8 @@ class Server {
         int _port;
         string _password;
 
+        string _name;
+
         int _sockfd;
         int _epfd;
         struct addrinfo _sin, *_res, *_p;
@@ -35,4 +37,7 @@ class Server {
         void run();
         void sclose();
         Client* getClientByNickname(const string& nickname);
+
+        string getName() const;
+        Server& setName(string name);
 };

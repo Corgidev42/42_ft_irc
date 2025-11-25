@@ -1,19 +1,20 @@
-#include "UserCommand.hpp"
-#include "Client.hpp"
-#include "Server.hpp"
+#include "impl/UserCommand.hpp"
 #include <iostream>
 
 UserCommand::UserCommand(){};
 UserCommand::~UserCommand(){};
 
 void UserCommand::execute(Server& server, Client& client, const Message& message){
+    std::map<string, string> args = MakeVars()("server", server.getName())("nick", client.getNickname());
     if (message.params.size() < 4){
-        client.reply(ERR_NEEDMOREPARAMS)
+        client.enqueueMessage(ircReplies.formatReply(
+            ERR_NEEDMOREPARAMS, MakeVars(args)("command", "USER")));
         return ;
     }
 
     if (client.isRegistered()){
-        client.reply(ERR_ALREADYREGISTRED)
+        client.enqueueMessage(ircReplies.formatReply(
+            ERR_NICKNAMEINUSE, args));
         return ;
     }
 
@@ -21,11 +22,11 @@ void UserCommand::execute(Server& server, Client& client, const Message& message
     std::string realname = message.params[3];
 
     client.setUsername(username);
-    client.setRealName(realname);
+    client.setRealname(realname);
 
     if (!client.getNickname().empty()){
         client.setRegistered(true);
-        client.reply("001" + client.getNickname() + " :Welcome to the FT_IRC Network");
-        std::cout << "Client " << client.getFd() << "is now fully registered!" << std::endl;
+        client.enqueueMessage(ircReplies.formatReply(
+            RPL_WELCOME, MakeVars(args)("user", client.getUsername())("host", "localhost")));
     }
 }

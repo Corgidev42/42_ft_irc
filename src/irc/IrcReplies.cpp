@@ -178,6 +178,12 @@ const std::map<int, std::string>& IRCReplies::getTemplates()
     return templates;
 }
 
+IRCReplies::IRCReplies() : _ircTemplates(getTemplates()) {}
+IRCReplies::~IRCReplies() {}
+
+// @TODO Even checker si global = bon
+IRCReplies ircReplies;
+
 std::string IRCReplies::replaceAll(const std::string& input,
                                    const std::string& pattern,
                                    const std::string& replacement)

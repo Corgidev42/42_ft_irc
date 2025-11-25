@@ -1,47 +1,52 @@
-#include "InviteCommand.hpp"
+// #include "InviteCommand.hpp"
+// #include "network/Client.hpp"
 
-InviteCommand::InviteCommand(){}
-InviteCommand::~InviteCommand(){}
+// InviteCommand::InviteCommand(){}
+// InviteCommand::~InviteCommand(){}
 
-void execute(Server& server, Client& client, const Message& message){
-    if (message.params.empty()){
-        client.reply(ERR_NEEDMOREPARAMS);
-        return ;
-    }
+// void execute(Server& server, Client& client, const Message& message){
+//     std::map<string, string> args = MakeVars()("server", server.getName())("nick", client.getNickname())("command", "INVITE");
 
-    std::string targetNick = message.params[0];
-    std::string chanName = message.params[1];
+//     if (message.params.empty()){
+//         client.enqueueMessage(ircReplies.formatReply(
+//             ERR_NEEDMOREPARAMS, args));
+//         return ;
+//     }
 
-    Channel* channel = server.getChannel(chanName);
-    if (!channel){
-        client.reply(ERR_NOSUCHCHANNEL);
-        return ;
-    }
+//     std::string targetNick = message.params[0];
+//     std::string chanName = message.params[1];
 
-    if (!channel->hasClient(&client)){
-        client.reply(ERR_NOTONCHANNEL);
-        return ;
-    }
+//     Channel* channel = server.getChannel(chanName);
+//     if (!channel){
+//         client.enqueueMessage(ircReplies.formatReply(
+//             ERR_NOSUCHCHANNEL, args));
+//         return ;
+//     }
 
-    if (channel->hasMode('i') && !channel->isOperator(&client)){
-        client.reply(ERR_CHANOPRIVSNEEDED);
-        return ;
-    }
+//     if (!channel->hasClient(&client)){
+//         client.enqueueMessage(ERR_NOTONCHANNEL);
+//         return ;
+//     }
 
-    Client* target = server.getClientByNick(targetNick);
-    if (!target){
-        client.reply(ERR_NOSUCHNICK);
-        return ;
-    }
+//     if (channel->hasMode('i') && !channel->isOperator(&client)){
+//         client.enqueueMessage(ERR_CHANOPRIVSNEEDED);
+//         return ;
+//     }
 
-    if (channel->hasClient(target)){
-        client.reply(ERR_USERONCHANNEL);
-        return ;
-    }
+//     Client* target = server.getClientByNick(targetNick);
+//     if (!target){
+//         client.enqueueMessage(ERR_NOSUCHNICK);
+//         return ;
+//     }
 
-    channel->addInvited(target);
+//     if (channel->hasClient(target)){
+//         client.enqueueMessage(ERR_USERONCHANNEL);
+//         return ;
+//     }
 
-    client.reply(RPL_INVITING);
+//     channel->addInvited(target);
 
-    target->reply(":" + client.getPrefix() + " INVITE " + targetNick + " :" + chanName);
-}
+//     client.enqueueMessage(RPL_INVITING);
+
+//     target->reply(":" + client.getPrefix() + " INVITE " + targetNick + " :" + chanName);
+// }

@@ -1,5 +1,10 @@
 #pragma once
 
+#include "Message.hpp"
+#include "irc/IrcNumeric.hpp"
+#include "irc/IrcMakeVars.hpp"
+#include "irc/IrcReplies.hpp"
+
 class Server;
 class Client;
 

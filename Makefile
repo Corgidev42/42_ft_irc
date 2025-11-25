@@ -21,12 +21,12 @@ else ifeq ($(UNAME_S), Windows_NT)
 endif
 
 # 📂 Répertoires
-SRC_DIR = src/
+SRC_DIR = src
 OBJ_DIR = obj
 INCLUDE_DIR = include
 
 # 📌 Fichiers sources et objets
-SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp)
+SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp) $(wildcard $(SRC_DIR)/*/*/*.cpp)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRC_FILES))
 
 # 📚 Inclusion des headers

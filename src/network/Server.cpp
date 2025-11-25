@@ -106,8 +106,14 @@ void Server::handle_event(struct epoll_event ev) {
 		std::map<int, Client>::iterator it = _clients.find(fd);
 		if (it != _clients.end()) {
 			Client& c = it->second;
-			if (ev.events & EPOLLOUT) handleWrite(c);
-			if (ev.events & EPOLLIN)  handleRead(c);
+			if (ev.events & EPOLLOUT) {
+				cout << "HANDLE WRITE" << endl;
+				handleWrite(c);
+			}
+			if (ev.events & EPOLLIN) {
+				cout << "HANDLE READ" << endl;
+				handleRead(c);
+			}
 		}
 	}
 }
@@ -136,6 +142,8 @@ void Server::handleWrite(Client& c)
 		c.disableWriteEvents();
 		return;
 	}
+
+	cout << "WRITE BUFFER" << c.getWriteBuffer() << endl;
 
 	ssize_t sent = send(c.getFd(),
 						c.getWriteBuffer().c_str(),
@@ -180,33 +188,45 @@ void Server::handleRead(Client& c)
 			DataExtractor extractor;
 			ExtractedData data = extractor.extract(parserIRC.ast);
 
-			if (data.has("<prefix>"))
-				parsedMessage.prefix = data.first("<prefix>");
-			if (data.has("<command>"))
-				parsedMessage.command = data.first("<command>");
-			if (data.has("<params>"))
-				parsedMessage.params = data.all("<params>");
+			parsedMessage.prefix = data.first("<prefix>");
+			parsedMessage.command = data.first("<command>");
+			// @TODO Even: merge middle et trailing
+			parsedMessage.params = data.all("<middle>");
+			for (size_t i = 0; i < data.all("<trailing>").size(); i++)
+				parsedMessage.params.push_back(data.all("<trailing>")[i]);
+
 			pos = parserIRC.consumed;
 			delete parserIRC.ast;
 		}
 		c.getReadBuffer().erase(0, pos);
-		// @TODO Even: Appeler les commandes ici
+		CommandFactory cf;
+
+		if (cf.getCommand(parsedMessage.command)) {
+			cf.getCommand(parsedMessage.command)->execute(*this, c, parsedMessage);
+		}
+
 		if (c.getReadBuffer().empty())
 			break;
 
-		pos = c.getReadBuffer().find("\r\n");
-		return ;
+		pos = c.getReadBuffer().find("\r\n") + 2;
 	}
 }
 
 Client* Server::getClientByNickname(const string& nickname){
-	map<int, Client*>::iterator it;
+	map<int, Client>::iterator it;
 
 	for (it = _clients.begin(); it != _clients.end(); it++){
-		Client* currentClient = it->second;
-
-		if (currentClient->getNickname() == nickname)
-			return currentClient;
+		if (it->second.getNickname() == nickname)
+			return &it->second;
 	}
 	return (NULL);
+}
+
+string Server::getName() const {
+	return _name;
+}
+
+Server& Server::setName(string name) {
+	_name = name;
+	return *this;
 }
