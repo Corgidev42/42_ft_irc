@@ -2,14 +2,16 @@
 
 Client::Client() : _fd(-1) {}
 
-Client::Client(int fd) : _fd(fd) {}
+Client::Client(int fd) : _fd(fd) {
+    _username = "";
+}
 
 string Client::getUsername() const {
     return _username;
 }
 
 string Client::getNickname() const {
-    return _username;
+    return _nickname;
 }
 
 string Client::getRealname() const {
@@ -68,7 +70,7 @@ void Client::setRegistered(bool status){
 void Client::enableWriteEvents() {
     epoll_event ev;
     ev.events = EPOLLIN | EPOLLOUT;
-    ev.data.ptr = this;
+    ev.data.fd = getFd();
 
     epoll_ctl(_ePollServerFd, EPOLL_CTL_MOD, _fd, &ev);
 }
@@ -76,7 +78,7 @@ void Client::enableWriteEvents() {
 void Client::disableWriteEvents() {
     epoll_event ev;
     ev.events = EPOLLIN;
-    ev.data.ptr = this;
+    ev.data.fd = getFd();
 
     epoll_ctl(_ePollServerFd, EPOLL_CTL_MOD, _fd, &ev);
 }

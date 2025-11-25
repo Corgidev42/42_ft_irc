@@ -4,7 +4,7 @@
 #include <sstream>
 #include <cstdlib>
 
-Server::Server(const string& port, const string& password) : _password(password) {
+Server::Server(const string& port, const string& password) : _password(password), _name("myServer") {
 	// Create serverSocket for listenng
 	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_sockfd == -1)
@@ -17,12 +17,11 @@ Server::Server(const string& port, const string& password) : _password(password)
 	_sin.ai_socktype = SOCK_STREAM;
 	_sin.ai_flags = AI_PASSIVE;
 
+	// @TODO Vincent : port en dynamique
 	if (getaddrinfo(NULL, "6667", &_sin, &_res))
 		cerr << "getaddrinfo error" << endl;
 
 	fcntl(_sockfd, F_SETFL, O_NONBLOCK);
-
-	_sockfd = -1;
 
 	// Loop through all possible addresses
 	for (_p = _res; _p != NULL; _p = _p->ai_next) {
@@ -124,6 +123,9 @@ void Server::addNewClient(int fd) {
 
 	int cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
 
+	// @TODO : Verifier si on peut l'utiliser pour le client
+	fcntl(cfd, F_SETFL, O_NONBLOCK);
+
 	struct epoll_event nev;
 	nev.events = EPOLLIN;
 	nev.data.fd = cfd;
@@ -195,11 +197,12 @@ void Server::handleRead(Client& c)
 			for (size_t i = 0; i < data.all("<trailing>").size(); i++)
 				parsedMessage.params.push_back(data.all("<trailing>")[i]);
 
-			pos = parserIRC.consumed;
 			delete parserIRC.ast;
 		}
 		c.getReadBuffer().erase(0, pos);
 		CommandFactory cf;
+
+		cout << "COMMAND : " << parsedMessage.command << endl;
 
 		if (cf.getCommand(parsedMessage.command)) {
 			cf.getCommand(parsedMessage.command)->execute(*this, c, parsedMessage);

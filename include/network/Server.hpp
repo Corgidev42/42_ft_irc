@@ -29,14 +29,15 @@ class Server {
 
         void handle_event(struct epoll_event ev);
         void addNewClient(int fd);
-        void handleWrite(Client& c);
-        void handleRead(Client& c);
     public:
         Server(const string& port, const string& password);
 
         void run();
         void sclose();
         Client* getClientByNickname(const string& nickname);
+
+        void handleWrite(Client& c);
+        void handleRead(Client& c);
 
         string getName() const;
         Server& setName(string name);

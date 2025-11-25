@@ -11,7 +11,8 @@ void PingCommand::execute(Server& server, Client& client, const Message& message
     }
 
     std::string token = message.params[0];
-    std::string pong = "PONG" + token;
+    std::string pong = "PONG :" + token;
 
     client.enqueueMessage(pong);
+    server.handleWrite(client);
 }

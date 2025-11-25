@@ -210,14 +210,16 @@ std::string IRCReplies::formatReply(int code,
     if (it == templates.end())
         return ""; // Aucun template trouvé
 
-    std::string msg = it->second;
+    std::string msg = ":" + it->second;
 
     for (std::map<std::string, std::string>::const_iterator vit = vars.begin();
          vit != vars.end(); ++vit)
     {
         std::string pattern = "{" + vit->first + "}";
         msg = replaceAll(msg, pattern, vit->second);
+        cout << "***New Message*** : " << msg << endl;
     }
+    msg += "\r\n";
 
     return msg;
 }

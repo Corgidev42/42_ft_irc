@@ -21,18 +21,20 @@ static bool isNicknameValid(const std::string& nick){
 }
 
 void NickCommand::execute(Server& server, Client& client, const Message& message){
-	std::map<string, string> args = MakeVars()("server", server.getName())("nick", client.getNickname());
+	std::map<string, string> args = MakeVars()("server", server.getName());
 
 	if (message.params.empty()){
 		client.enqueueMessage(ircReplies.formatReply(
 			ERR_NONICKNAMEGIVEN, args));
+		server.handleWrite(client);
 		return ;
 	}
 
 	std::string newNick = message.params[0];
 	if (!isNicknameValid(newNick)){
 		client.enqueueMessage(ircReplies.formatReply(
-			ERR_ERRONEUSNICKNAME, MakeVars(args)("target", newNick)));
+			ERR_ERRONEUSNICKNAME, MakeVars(args)("nick", newNick)("target", newNick)));
+		server.handleWrite(client);
 		return ;
 	}
 
@@ -43,17 +45,21 @@ void NickCommand::execute(Server& server, Client& client, const Message& message
 
 			cout << "NEW NICK " << newNick << endl;
 			client.enqueueMessage(ircReplies.formatReply(
-				ERR_NICKNAMEINUSE, MakeVars(args)("target", newNick)));
+				ERR_NICKNAMEINUSE, MakeVars(args)("nick", currentNick)("target", newNick)));
+			server.handleWrite(client);
 			return;
 		}
 	}
 
 	std::string oldNick = client.getNickname();
 	client.setNickname(newNick);
+	cout << "New Nickname : " << client.getNickname() << endl;
 
 	if (client.isRegistered()) {
-		// @TODO Even: host en dynamique
-		client.enqueueMessage(ircReplies.formatReply(
-			RPL_WELCOME, MakeVars(args)("user", client.getUsername())("host", "localhost")));
+		// @TODO : host en dynamique
+		std::string reply = ":" + oldNick + "!" + client.getUsername() + "@" + "localhost" +
+                    " NICK :" + newNick + "\r\n";
+		client.enqueueMessage(reply);
+		server.handleWrite(client);
 	}
 }

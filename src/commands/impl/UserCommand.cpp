@@ -9,12 +9,14 @@ void UserCommand::execute(Server& server, Client& client, const Message& message
     if (message.params.size() < 4){
         client.enqueueMessage(ircReplies.formatReply(
             ERR_NEEDMOREPARAMS, MakeVars(args)("command", "USER")));
+        server.handleWrite(client);
         return ;
     }
 
     if (client.isRegistered()){
         client.enqueueMessage(ircReplies.formatReply(
             ERR_NICKNAMEINUSE, args));
+        server.handleWrite(client);
         return ;
     }
 
@@ -28,5 +30,8 @@ void UserCommand::execute(Server& server, Client& client, const Message& message
         client.setRegistered(true);
         client.enqueueMessage(ircReplies.formatReply(
             RPL_WELCOME, MakeVars(args)("user", client.getUsername())("host", "localhost")));
+        client.enqueueMessage(ircReplies.formatReply(
+            RPL_YOURHOST, MakeVars(args)("version", "1.0")));
+        server.handleWrite(client);
     }
 }
