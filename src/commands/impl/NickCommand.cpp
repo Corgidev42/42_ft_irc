@@ -10,8 +10,6 @@ static bool isNicknameValid(const std::string& nick){
 	if (isdigit(nick[0]))
 		return (false);
 
-	cout << "'" << nick << "'" << endl;
-
 	std::string special = "[]\\`_^{|}";
 	for (size_t i = 0; i < nick.size(); i++){
 		if (!isalnum(nick[i]) && special.find(nick[i]) == std::string::npos)
