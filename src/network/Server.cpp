@@ -215,10 +215,41 @@ void Server::handleRead(Client& c)
 	}
 }
 
+Channel* Server::getChannel(const string& chanName) {
+	map<string, Channel>::iterator it;
+
+	for (it = _channels.begin(); it != _channels.end(); ++it) {
+		if (it->second.getName() == chanName)
+			return &it->second;
+	}
+	return (NULL);
+}
+
+
+Channel* Server::addChannel(const string& chanName) {
+	map<string, Channel>::iterator it = _channels.find(chanName);
+	if (it != _channels.end())
+		return NULL;
+
+	std::pair<std::map<std::string, Channel>::iterator, bool> res =
+        _channels.insert(std::make_pair(chanName, Channel(chanName)));
+
+	return &(res.first->second);
+}
+
+void Server::removeChannel(const string& chanName) {
+	map<string, Channel>::iterator it;
+
+	for (it = _channels.begin(); it != _channels.end(); ++it) {
+		if ((it->second).getName() == chanName)
+			_channels.erase(chanName);
+	}
+}
+
 Client* Server::getClientByNickname(const string& nickname){
 	map<int, Client>::iterator it;
 
-	for (it = _clients.begin(); it != _clients.end(); it++){
+	for (it = _clients.begin(); it != _clients.end(); ++it){
 		if (it->second.getNickname() == nickname)
 			return &it->second;
 	}

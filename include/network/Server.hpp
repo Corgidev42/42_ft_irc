@@ -8,8 +8,10 @@
 #include <fcntl.h>
 #include <map>
 #include "common.hpp"
-#include "Client.hpp"
+#include "network/Client.hpp"
+#include "Channel.hpp"
 
+class Channel;
 
 // @TODO : Fonctions generales a faire en pointeurs de fonctions pour les differences entre les clients
 
@@ -26,6 +28,7 @@ class Server {
         struct epoll_event _rev[1028];
 
         map<int, Client> _clients;
+        map<string, Channel> _channels;
 
         void handle_event(struct epoll_event ev);
         void addNewClient(int fd);
@@ -38,6 +41,10 @@ class Server {
 
         void handleWrite(Client& c);
         void handleRead(Client& c);
+
+        Channel* getChannel(const string& chanName);
+        Channel* addChannel(const string& chanName);
+        void removeChannel(const string& chanName);
 
         string getName() const;
         Server& setName(string name);
