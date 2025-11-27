@@ -4,7 +4,7 @@
 #include <sstream>
 #include <cstdlib>
 
-Server::Server(const string& port, const string& password) : _password(password), _name("myServer") {
+Server::Server(const string& port, const string& password) : _password(password), _name("localhost") {
 	// Create serverSocket for listenng
 	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_sockfd == -1)
@@ -146,7 +146,6 @@ void Server::handleWrite(Client& c)
 		return;
 	}
 
-	cout << "WRITE BUFFER" << c.getWriteBuffer() << endl;
 
 	ssize_t sent = send(c.getFd(),
 						c.getWriteBuffer().c_str(),
@@ -155,7 +154,9 @@ void Server::handleWrite(Client& c)
 
 	if (sent > 0)
 	{
+		cout << "WRITE BUFFER" << c.getWriteBuffer() << endl;
 		c.getWriteBuffer().erase(0, sent);
+		cout << "WRITE BUFFER EMPTY" << endl;
 
 		if (c.getWriteBuffer().empty())
 			c.disableWriteEvents();
@@ -226,13 +227,13 @@ Channel* Server::getChannel(const string& chanName) {
 }
 
 
-Channel* Server::addChannel(const string& chanName) {
+Channel* Server::addChannel(const string& chanName, Client* client) {
 	map<string, Channel>::iterator it = _channels.find(chanName);
 	if (it != _channels.end())
 		return NULL;
 
 	std::pair<std::map<std::string, Channel>::iterator, bool> res =
-        _channels.insert(std::make_pair(chanName, Channel(chanName)));
+        _channels.insert(std::make_pair(chanName, Channel(chanName, client)));
 
 	return &(res.first->second);
 }

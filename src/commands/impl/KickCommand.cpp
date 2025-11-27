@@ -51,7 +51,7 @@ void KickCommand::execute(Server& server, Client& client, const Message& message
         return ;
     }
 
-    std::string kickMsg = ":" + client.getNickname() + " KICK " + chanName + " " + targetNick + " :" + comment;
+    std::string kickMsg = ":" + client.getNickname() + " KICK " + chanName + " " + targetNick + " :" + comment + "\r\n";
     channel->broadcast(kickMsg, server);
 
     channel->removeClient(target);

@@ -13,6 +13,7 @@ void JoinCommand::execute(Server& server, Client& client, const Message& message
         return ;
     }
 
+    // @TODO Checker le nom '#'
     std::string chanName = message.params[0];
     string key;
     if (message.params.size() > 1)
@@ -33,7 +34,7 @@ void JoinCommand::execute(Server& server, Client& client, const Message& message
     // cas 1 : on creer si ca existe pas :
     if (!channel){
         //TODO : faireu ne methode createChannel
-        channel = server.addChannel(chanName);
+        channel = server.addChannel(chanName, &client);
 
         std::cout << "Channel " << chanName << " created by " << client.getNickname() << std::endl;
     }

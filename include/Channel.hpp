@@ -8,7 +8,7 @@ class Server;
 class Channel {
 public:
   Channel();
-  Channel(const std::string& name);
+  Channel(const std::string& name, Client* client);
   ~Channel();
 
   string getName() const;

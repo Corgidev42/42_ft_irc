@@ -1,7 +1,8 @@
 #include "Channel.hpp"
 
-Channel::Channel(const std::string& name) {
+Channel::Channel(const std::string& name, Client* client) {
     _name = name;
+    addOperator(client);
 }
 
 Channel::~Channel() {}

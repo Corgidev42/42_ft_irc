@@ -7,6 +7,6 @@ CapCommand::~CapCommand(){};
 void CapCommand::execute(Server& server, Client& client, const Message& message){
 	(void)message;
 	
-	client.enqueueMessage("CAP * LS :");
+	client.enqueueMessage("CAP * LS :\r\n");
 	server.handleWrite(client);
 }

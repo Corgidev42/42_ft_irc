@@ -2,10 +2,16 @@
 #include <iostream>
 
 CommandFactory::CommandFactory(){
-    // _commands["JOIN"] = new JoinCommand();
+    _commands["CAP"] = new CapCommand();
+    _commands["INVITE"] = new InviteCommand();
+    _commands["JOIN"] = new JoinCommand();
+    _commands["KICK"] = new KickCommand();
+    _commands["MODE"] = new ModeCommand();
     _commands["NICK"] = new NickCommand();
-    _commands["USER"] = new UserCommand();
     _commands["PING"] = new PingCommand();
+    _commands["PRVMSG"] = new PrivMsgCommand();
+    _commands["TOPIC"] = new TopicCommand();
+    _commands["USER"] = new UserCommand();
 }
 
 CommandFactory::~CommandFactory(){

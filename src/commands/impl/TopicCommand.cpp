@@ -57,7 +57,7 @@ void TopicCommand::execute(Server& server, Client& client, const Message& messag
     std::string newTopic = message.params[1];
     channel->setTopic(newTopic);
 
-    std::string msg = ":" + client.getNickname() + " TOPIC " + chanName + " :" + newTopic;
+    std::string msg = ":" + client.getNickname() + " TOPIC " + chanName + " :" + newTopic + "\r\n";
     // notif a tous le channel
     channel->broadcast(msg, server);
 }

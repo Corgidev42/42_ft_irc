@@ -43,7 +43,7 @@ class Server {
         void handleRead(Client& c);
 
         Channel* getChannel(const string& chanName);
-        Channel* addChannel(const string& chanName);
+        Channel* addChannel(const string& chanName, Client *client);
         void removeChannel(const string& chanName);
 
         string getName() const;

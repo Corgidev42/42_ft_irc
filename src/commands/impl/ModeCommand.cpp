@@ -2,6 +2,9 @@
 #include <cstdlib>
 #include <sstream>
 
+ModeCommand::ModeCommand(){};
+ModeCommand::~ModeCommand(){};
+
 void ModeCommand::execute(Server& server, Client& client, const Message& message) {
     std::map<string, string> args = MakeVars()("server", server.getName())("nick", client.getNickname());
 
@@ -163,7 +166,7 @@ void ModeCommand::execute(Server& server, Client& client, const Message& message
     }
 
     if (!modeStrResult.empty()) {
-        std::string finalMsg = ":" + client.getNickname() + " MODE " + target + " " + modeStrResult + modeParamsResult;
+        std::string finalMsg = ":" + client.getNickname() + " MODE " + target + " " + modeStrResult + modeParamsResult + "\r\n";
 
         channel->broadcast(finalMsg, server);
     }

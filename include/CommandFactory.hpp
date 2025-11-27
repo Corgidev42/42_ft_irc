@@ -4,6 +4,7 @@
 #include <string>
 #include "ICommand.hpp"
 
+#include "impl/CapCommand.hpp"
 #include "impl/InviteCommand.hpp"
 #include "impl/JoinCommand.hpp"
 #include "impl/KickCommand.hpp"
@@ -12,6 +13,7 @@
 #include "impl/PingCommand.hpp"
 #include "impl/TopicCommand.hpp"
 #include "impl/UserCommand.hpp"
+#include "impl/PrivMsgCommand.hpp"
 
 class CommandFactory{
   private:
