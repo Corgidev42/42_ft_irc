@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     (void) argv;
     // Tester la commande "./ircserv <port> <password>"
 
-    spdlog::info("Welcome to spdlog!");
+    // spdlog::info("Welcome to spdlog!");
 
     initParserIRC();
 

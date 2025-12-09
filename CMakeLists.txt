@@ -11,25 +11,30 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Wextra -Werror)
 
 # -------------------------------------------------------
-# FetchContent pour les bibliothèques externes
+# Gestion des dépendances externes
 # -------------------------------------------------------
-include(FetchContent)
+set(DEPS_INSTALL_DIR ${CMAKE_BINARY_DIR}/deps)
+file(MAKE_DIRECTORY ${DEPS_INSTALL_DIR})
 
-# --- spdlog ---
-FetchContent_Declare(
-    spdlog
+include(ExternalProject)
+
+# ---- spdlog ----
+ExternalProject_Add(
+    spdlog_ext
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG v1.16.0
-  )
-FetchContent_MakeAvailable(spdlog)
+    GIT_TAG v1.12.0
+    PREFIX ${DEPS_INSTALL_DIR}/spdlog
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_DIR}/spdlog/install
+)
 
-# --- BNFParserLib ---
-FetchContent_Declare(
-    BNFParserLib
+# ---- BNFParserLib ----
+ExternalProject_Add(
+    BNFParserLib_ext
     GIT_REPOSITORY https://github.com/EvenZeppa/BNFParserLib.git
     GIT_TAG main
+    PREFIX ${DEPS_INSTALL_DIR}/BNFParserLib
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_DIR}/BNFParserLib/install
 )
-FetchContent_MakeAvailable(BNFParserLib)
 
 # -------------------------------------------------------
 # Arborescence du projet
@@ -51,22 +56,12 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 # -------------------------------------------------------
 # Inclusion des headers des libs externes
 # -------------------------------------------------------
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${spdlog_SOURCE_DIR}/include
-    ${BNFParserLib_SOURCE_DIR}/include
+target_include_directories(ircserv PRIVATE
+    ${DEPS_INSTALL_DIR}/spdlog/install/include
+    ${DEPS_INSTALL_DIR}/BNFParserLib/install/include
 )
 
-# -------------------------------------------------------
-# Lien avec les bibliothèques externes
-# -------------------------------------------------------
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    spdlog::spdlog
-    bnf
+target_link_libraries(ircserv PRIVATE
+    ${DEPS_INSTALL_DIR}/spdlog/install/lib/libspdlog.a
+    ${DEPS_INSTALL_DIR}/BNFParserLib/install/lib/libbnf.a
 )
-
-# -------------------------------------------------------
-# Mode Debug par défaut (utile pendant ft_irc)
-# -------------------------------------------------------
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
-endif()
