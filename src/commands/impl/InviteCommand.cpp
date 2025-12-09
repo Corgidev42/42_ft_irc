@@ -43,7 +43,7 @@ void InviteCommand::execute(Server& server, Client& client, const Message& messa
     Client* target = server.getClientByNickname(targetNick);
     if (!target){
         client.enqueueMessage(ircReplies.formatReply(
-            ERR_NOSUCHNICK, MakeVars(args)("target", target->getNickname())));
+            ERR_NOSUCHNICK, MakeVars(args)("target", targetNick)));
         server.handleWrite(client);
         return ;
     }

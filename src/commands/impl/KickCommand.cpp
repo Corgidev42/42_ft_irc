@@ -5,7 +5,7 @@ KickCommand::~KickCommand(){}
 
 void KickCommand::execute(Server& server, Client& client, const Message& message){
     std::map<string, string> args = MakeVars()("server", server.getName())("nick", client.getNickname());
-    
+
     if (message.params.empty()){
         client.enqueueMessage(ircReplies.formatReply(
             ERR_NEEDMOREPARAMS, MakeVars(args)("command", "KICK")));
@@ -46,7 +46,7 @@ void KickCommand::execute(Server& server, Client& client, const Message& message
     Client* target = channel->getClientByNick(targetNick);
     if (!target){
         client.enqueueMessage(ircReplies.formatReply(
-            ERR_USERNOTINCHANNEL, MakeVars(args)("target", target->getNickname())("channel", chanName)));
+            ERR_USERNOTINCHANNEL, MakeVars(args)("target", targetNick)("channel", chanName)));
         server.handleWrite(client);
         return ;
     }
