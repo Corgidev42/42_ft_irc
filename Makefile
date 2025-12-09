@@ -1,8 +1,9 @@
 # 🛠 Compilateur et flags
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
-# CXXFLAGS =
-LDFLAGS = -Llib -lbnf
+# CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = 
+LDFLAGS = -L/usr/local -lbnf -lspdlog
+# LDFLAGS =
 
 # 🏆 Nom du projet
 PROJECT_NAME = ft_irc
@@ -50,6 +51,7 @@ $(OBJ_DIR):
 
 # 🧹 Nettoyage des fichiers objets
 clean:
+	rm -rf BNFParserLib/build spdlog/build
 	rm -rf $(OBJ_DIR)
 	@echo "🗑️  Fichiers objets nettoyés."
 
