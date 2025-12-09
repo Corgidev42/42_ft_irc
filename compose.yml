@@ -1,0 +1,10 @@
+services:
+  irc:
+    image: evenzeppa/42env:latest
+    ports:
+      - 6667:6667
+    tty: true
+    stdin_open: true
+    command: ["/bin/bash", "rebuilt.sh"]
+    volumes:
+      - ./:/root

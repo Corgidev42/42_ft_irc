@@ -1,0 +1,1 @@
+cmake -B build && make -C build && ./build/ircserv 6667 1234
