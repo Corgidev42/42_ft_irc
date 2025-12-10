@@ -12,6 +12,7 @@ CommandFactory::CommandFactory(){
     _commands["PRVMSG"] = new PrivMsgCommand();
     _commands["TOPIC"] = new TopicCommand();
     _commands["USER"] = new UserCommand();
+    _commands["WHO"] = new WhoCommand();
 }
 
 CommandFactory::~CommandFactory(){

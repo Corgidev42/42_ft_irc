@@ -14,6 +14,7 @@
 #include "impl/TopicCommand.hpp"
 #include "impl/UserCommand.hpp"
 #include "impl/PrivMsgCommand.hpp"
+#include "impl/WhoCommand.hpp"
 
 class CommandFactory{
   private:

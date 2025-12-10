@@ -43,6 +43,8 @@ public:
   void broadcast(const string& msg, Server& server);
   void broadcastExcept(const string& msg, Server& server, Client* sender);
 
+  map<string, Client*> getClients() const;
+
   string buildNamesList();
 
 

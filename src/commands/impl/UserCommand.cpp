@@ -15,7 +15,7 @@ void UserCommand::execute(Server& server, Client& client, const Message& message
 
     if (client.isRegistered()){
         client.enqueueMessage(ircReplies.formatReply(
-            ERR_NICKNAMEINUSE, args));
+            ERR_NICKNAMEINUSE, MakeVars(args)("target", client.getNickname())));
         server.handleWrite(client);
         return ;
     }

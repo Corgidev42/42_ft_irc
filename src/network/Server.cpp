@@ -230,6 +230,7 @@ Channel* Server::addChannel(const string& chanName, Client* client) {
 
 	std::pair<std::map<std::string, Channel>::iterator, bool> res =
         _channels.insert(std::make_pair(chanName, Channel(chanName, client)));
+	res.first->second.addOperator(client);
 	spdlog::info("Channel {} created by client FD {}", chanName, client->getFd());
 
 	return &(res.first->second);

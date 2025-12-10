@@ -198,3 +198,7 @@ string Channel::buildNamesList() {
     }
     return names;
 }
+
+map<string, Client*> Channel::getClients() const {
+	return _clients;
+}
