@@ -19,6 +19,8 @@ using namespace std;
 #include "bnfparser/BNFParser.hpp"
 #include "bnfparser/Debug.hpp"
 
+#include "spdlog/spdlog.h"
+
 struct ParserIRC {
     Grammar grammar;
     BNFParser parser;

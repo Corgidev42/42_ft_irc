@@ -85,6 +85,5 @@ void Client::disableWriteEvents() {
 
 void Client::enqueueMessage(const std::string& message){
     getWriteBuffer() += message;
-    cout << "enqueueMessage : " << getWriteBuffer() << endl;
     enableWriteEvents();
 }

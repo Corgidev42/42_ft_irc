@@ -8,7 +8,7 @@ Server::Server(const string& port, const string& password) : _password(password)
 	// Create serverSocket for listenng
 	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_sockfd == -1)
-	cerr << "Error: Socket init" << endl;
+		cerr << "Error: Socket init" << endl;
 
 	istringstream(port) >> _port;
 
@@ -18,7 +18,7 @@ Server::Server(const string& port, const string& password) : _password(password)
 	_sin.ai_flags = AI_PASSIVE;
 
 	// @TODO Vincent : port en dynamique
-	if (getaddrinfo(NULL, "6667", &_sin, &_res))
+	if (getaddrinfo(NULL, port.c_str(), &_sin, &_res))
 		cerr << "getaddrinfo error" << endl;
 
 	fcntl(_sockfd, F_SETFL, O_NONBLOCK);
@@ -32,7 +32,7 @@ Server::Server(const string& port, const string& password) : _password(password)
 		setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
 		if (bind(_sockfd, _p->ai_addr, _p->ai_addrlen) == 0) {
-			cout << "Bind success!\n";
+			spdlog::info("Socket bound to port {}", port);
 			break;
 		}
 
@@ -85,7 +85,7 @@ void Server::sclose()
 	if (_sockfd >= 0) close(_sockfd);
 	if (_epfd >= 0) close(_epfd);
 
-	std::cout << "Server closed cleanly." << std::endl;
+	spdlog::info("Server closed");
 }
 
 void Server::handle_event(struct epoll_event ev) {
@@ -106,11 +106,9 @@ void Server::handle_event(struct epoll_event ev) {
 		if (it != _clients.end()) {
 			Client& c = it->second;
 			if (ev.events & EPOLLOUT) {
-				cout << "HANDLE WRITE" << endl;
 				handleWrite(c);
 			}
 			if (ev.events & EPOLLIN) {
-				cout << "HANDLE READ" << endl;
 				handleRead(c);
 			}
 		}
@@ -122,6 +120,7 @@ void Server::addNewClient(int fd) {
 	socklen_t peer_addr_size = sizeof(peer_addr);
 
 	int cfd = accept(fd, (struct sockaddr *)&peer_addr, &peer_addr_size);
+	spdlog::info("New client connected: FD {}", cfd);
 
 	// @TODO : Verifier si on peut l'utiliser pour le client
 	fcntl(cfd, F_SETFL, O_NONBLOCK);
@@ -141,11 +140,9 @@ void Server::handleWrite(Client& c)
 {
 	if (c.getWriteBuffer().empty())
 	{
-		cout << "WRITE BUFFER EMPTY" << endl;
 		c.disableWriteEvents();
 		return;
 	}
-
 
 	ssize_t sent = send(c.getFd(),
 						c.getWriteBuffer().c_str(),
@@ -154,9 +151,8 @@ void Server::handleWrite(Client& c)
 
 	if (sent > 0)
 	{
-		cout << "WRITE BUFFER" << c.getWriteBuffer() << endl;
+		spdlog::debug("Sent to client FD {} buffer '{}'", c.getFd(), c.getWriteBuffer());
 		c.getWriteBuffer().erase(0, sent);
-		cout << "WRITE BUFFER EMPTY" << endl;
 
 		if (c.getWriteBuffer().empty())
 			c.disableWriteEvents();
@@ -178,6 +174,7 @@ void Server::handleRead(Client& c)
 	// Gerer le cas de n < 0
 
 	c.getReadBuffer().append(buf, n);
+	spdlog::debug("Received from client FD {} buffer '{}'", c.getFd(), c.getReadBuffer());
 
 	size_t pos = c.getReadBuffer().find("\r\n") + 2;
 	while (pos > 2) {
@@ -186,7 +183,7 @@ void Server::handleRead(Client& c)
 
 		parserIRC.ast = parserIRC.parser.parse("<message>", msg, parserIRC.consumed);
 		if (parserIRC.ast == 0) {
-			cout << "[DEBUG]: Command unknown : '" << msg << "'" << endl;
+			spdlog::warn("Failed to parse message from client FD {}: '{}'", c.getFd(), msg);
 		}
 		else if (parserIRC.consumed > 0) {
 			DataExtractor extractor;
@@ -203,9 +200,8 @@ void Server::handleRead(Client& c)
 		c.getReadBuffer().erase(0, pos);
 		CommandFactory cf;
 
-		cout << "COMMAND : " << parsedMessage.command << endl;
-
 		if (cf.getCommand(parsedMessage.command)) {
+			spdlog::debug("Executing command '{}' from client FD {}", parsedMessage.command, c.getFd());
 			cf.getCommand(parsedMessage.command)->execute(*this, c, parsedMessage);
 		}
 
@@ -234,6 +230,7 @@ Channel* Server::addChannel(const string& chanName, Client* client) {
 
 	std::pair<std::map<std::string, Channel>::iterator, bool> res =
         _channels.insert(std::make_pair(chanName, Channel(chanName, client)));
+	spdlog::info("Channel {} created by client FD {}", chanName, client->getFd());
 
 	return &(res.first->second);
 }
@@ -245,6 +242,7 @@ void Server::removeChannel(const string& chanName) {
 		if ((it->second).getName() == chanName)
 			_channels.erase(chanName);
 	}
+	spdlog::info("Channel {} removed", chanName);
 }
 
 Client* Server::getClientByNickname(const string& nickname){

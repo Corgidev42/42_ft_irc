@@ -217,7 +217,6 @@ std::string IRCReplies::formatReply(int code,
     {
         std::string pattern = "{" + vit->first + "}";
         msg = replaceAll(msg, pattern, vit->second);
-        cout << "***New Message*** : " << msg << endl;
     }
     msg += "\r\n";
 

@@ -1,6 +1,5 @@
 #include "common.hpp"
 #include "network/Server.hpp"
-#include "spdlog/spdlog.h"
 
 struct ParserIRC parserIRC;
 
@@ -40,7 +39,8 @@ int main(int argc, char *argv[])
     (void) argv;
     // Tester la commande "./ircserv <port> <password>"
 
-    spdlog::info("Welcome to spdlog!");
+    spdlog::info("Welcome to ircserv!");
+	spdlog::set_level(spdlog::level::debug);
 
     initParserIRC();
 

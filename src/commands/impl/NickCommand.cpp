@@ -41,7 +41,6 @@ void NickCommand::execute(Server& server, Client& client, const Message& message
 		if (currentNick.empty()) {
 			currentNick = "*";
 
-			cout << "NEW NICK " << newNick << endl;
 			client.enqueueMessage(ircReplies.formatReply(
 				ERR_NICKNAMEINUSE, MakeVars(args)("nick", currentNick)("target", newNick)));
 			server.handleWrite(client);
@@ -51,7 +50,7 @@ void NickCommand::execute(Server& server, Client& client, const Message& message
 
 	std::string oldNick = client.getNickname();
 	client.setNickname(newNick);
-	cout << "New Nickname : " << client.getNickname() << endl;
+	spdlog::info("Client FD {} changed nickname from '{}' to '{}'", client.getFd(), oldNick, newNick);
 
 	if (client.isRegistered()) {
 		// @TODO : host en dynamique
