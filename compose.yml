@@ -1,6 +1,7 @@
 services:
   irc:
     image: evenzeppa/42env:latest
+    container_name: ircserv
     ports:
       - 6667:6667
     tty: true
