@@ -3,6 +3,7 @@
 Channel::Channel(const std::string& name, Client* client) {
     _name = name;
     addOperator(client);
+	spdlog::info("Channel {} created by operator {}", name, client->getNickname());
 }
 
 Channel::~Channel() {}

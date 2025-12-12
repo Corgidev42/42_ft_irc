@@ -35,8 +35,6 @@ void JoinCommand::execute(Server& server, Client& client, const Message& message
     if (!channel){
         //TODO : faireu ne methode createChannel
         channel = server.addChannel(chanName, &client);
-
-        std::cout << "Channel " << chanName << " created by " << client.getNickname() << std::endl;
     }
     // cas 2 : le channel existe :
     else {

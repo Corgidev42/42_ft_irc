@@ -65,7 +65,7 @@ Server::Server(const string& port, const string& password) : _password(password)
 
 void Server::run() {
 	while(true) {
-		int num_events = epoll_wait	(_epfd, _rev, 1028, -1);
+		int num_events = epoll_wait(_epfd, _rev, 1028, -1);
 		if (num_events > 0)
 			for (int i = 0; i < num_events; ++i)
 				handle_event(_rev[i]);
@@ -230,8 +230,6 @@ Channel* Server::addChannel(const string& chanName, Client* client) {
 
 	std::pair<std::map<std::string, Channel>::iterator, bool> res =
         _channels.insert(std::make_pair(chanName, Channel(chanName, client)));
-	res.first->second.addOperator(client);
-	spdlog::info("Channel {} created by client FD {}", chanName, client->getFd());
 
 	return &(res.first->second);
 }

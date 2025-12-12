@@ -9,7 +9,7 @@ CommandFactory::CommandFactory(){
     _commands["MODE"] = new ModeCommand();
     _commands["NICK"] = new NickCommand();
     _commands["PING"] = new PingCommand();
-    _commands["PRVMSG"] = new PrivMsgCommand();
+    _commands["PRIVMSG"] = new PrivMsgCommand();
     _commands["TOPIC"] = new TopicCommand();
     _commands["USER"] = new UserCommand();
     _commands["WHO"] = new WhoCommand();
