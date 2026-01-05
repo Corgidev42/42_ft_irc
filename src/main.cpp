@@ -38,6 +38,13 @@ int main(int argc, char *argv[])
     (void) argc;
     (void) argv;
     // Tester la commande "./ircserv <port> <password>"
+    // @TODO: @ sur le channel operator,
+    // @TODO: 9 charc max sur le nick du client
+    // @TODO: 200 charac max pour le chanel, il doit commencer par # ou &
+    // pas ' ' ou ',' ou CTRL G
+    // @TODO: gerer le password du serveur
+    // @TODO: gerer la commande QUIT et PART
+    // @TODO:
 
     spdlog::info("Welcome to ircserv!");
 	spdlog::set_level(spdlog::level::debug);
